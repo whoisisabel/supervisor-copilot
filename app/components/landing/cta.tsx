@@ -1,6 +1,20 @@
+"use client";
+
+import { motion } from "framer-motion";
+
 export default function CTA() {
   return (
-    <section className="mx-auto max-w-5xl px-8 py-24 text-center z-10 relative">
+    <motion.section
+      id="features"
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{
+        duration: 0.8,
+        ease: [0.21, 0.47, 0.32, 0.98],
+      }}
+      className="mx-auto max-w-5xl px-8 py-24 text-center z-10 relative"
+    >
       <div className="rounded-3xl bg-[var(--brand--neutrals--navy-blue)] px-8 py-16 text-white">
         <h2 className="text-3xl font-semibold">
           AI that supports care, not replaces it
@@ -17,6 +31,6 @@ export default function CTA() {
           Try the dashboard
         </a>
       </div>
-    </section>
+    </motion.section>
   );
 }

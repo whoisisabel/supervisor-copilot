@@ -4,6 +4,7 @@ import Features from "./components/landing/features";
 import CTA from "./components/landing/cta";
 import Footer from "./components/landing/footer";
 import BackgroundDecor from "./components/landing/backgroundDecor";
+import ScrollToTop from "./components/landing/scrollToTop";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <Features />
       <CTA />
       <Footer />
+      <ScrollToTop />
     </main>
   );
 }

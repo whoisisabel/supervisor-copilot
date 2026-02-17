@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Urbanist, Work_Sans } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 const urbanist_font = Urbanist({
@@ -16,7 +17,8 @@ const workSans = Work_Sans({
 
 export const metadata: Metadata = {
   title: "Supervisor Copilot",
-  description: "We explore how Generative AI can responsibly amplify Supervisor capacity by summarizing sessions, evaluating protocol adherence and flagging potential safety risks — without replacing human judgment.",
+  description:
+    "We explore how Generative AI can responsibly amplify Supervisor capacity by summarizing sessions, evaluating protocol adherence and flagging potential safety risks — without replacing human judgment.",
 };
 
 export default function RootLayout({
@@ -30,6 +32,27 @@ export default function RootLayout({
         className={`${urbanist_font.variable} ${workSans.variable} antialiased`}
       >
         {children}
+        <Toaster
+          position="bottom-left"
+          toastOptions={{
+            removeDelay: 3000,
+            success: {
+              style: {
+                background: "green",
+              },
+            },
+            error: {
+              style: {
+                background: "var(--brand--color--red)",
+              },
+            },
+            style: {
+              color: "white",
+              borderRadius: "12px",
+              marginBottom: "1rem",
+            },
+          }}
+        />
       </body>
     </html>
   );

@@ -1,6 +1,20 @@
+"use client";
+
+import { motion } from "framer-motion";
+
 export default function Features() {
   return (
-    <section id="features" className="mx-auto max-w-6xl px-8 py-24 z-10 relative">
+    <motion.section
+      id="features"
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{
+        duration: 0.8,
+        ease: [0.21, 0.47, 0.32, 0.98],
+      }}
+      className="mx-auto max-w-6xl px-8 py-24 z-10 relative my-20"
+    >
       <div className="mb-12 text-center">
         <h2 className="text-3xl font-semibold text-[var(--brand--neutrals--navy-blue)]">
           Built for supervisors at scale
@@ -25,7 +39,7 @@ export default function Features() {
           description="Automatically flag potential safety concerns while allowing supervisors to override AI decisions."
         />
       </div>
-    </section>
+    </motion.section>
   );
 }
 
@@ -37,7 +51,7 @@ function FeatureCard({
   description: string;
 }) {
   return (
-    <div className="rounded-2xl bg-[var(--brand--neutrals--card-grey)] p-6">
+    <div className="rounded-2xl bg-[var(--brand--neutrals--card-grey)] p-6 transition-transform hover:scale-[1.02]">
       <h3 className="text-lg font-semibold text-[var(--brand--neutrals--navy-blue)]">
         {title}
       </h3>

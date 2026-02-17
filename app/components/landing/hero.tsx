@@ -26,7 +26,7 @@ export default function Hero() {
         </a>
         <a
           href="#features"
-          className="rounded-xl border border-[var(--brand--neutrals--stroke-grey)] px-6 py-3 font-medium text-[var(--brand--neutrals--navy-blue)] hover:bg-[var(--brand--neutrals--card-grey)]"
+          className="rounded-xl border border-[var(--brand--color--lilac-purple)] px-6 py-3 font-medium text-[var(--brand--neutrals--navy-blue)] hover:bg-[var( --brand--color--lilac-purple)]"
         >
           Learn more
         </a>

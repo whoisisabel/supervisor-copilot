@@ -8,18 +8,18 @@ export default function Navbar() {
         <Image
           src={logo}
           alt="Supervisor Copilot Logo"
-          width={32}
-          height={32}
+          width={38}
+          height={38}
           className="inline-block mr-2"
         />
-        <div className="text-lg font-semibold text-[var(--brand--neutrals--navy-blue)]">
+        <div className="text-2xl font-semibold text-[var(--brand--neutrals--navy-blue)]">
           Supervisor Copilot
         </div>
       </div>
 
       <a
         href="/login"
-        className="rounded-lg bg-[var(--brand--neutrals--navy-blue)] opacity-100 px-8 py-2 text-sm font-medium text-white hover:opacity-90"
+        className="rounded-lg bg-[var(--brand--neutrals--navy-blue)] opacity-100 px-10 py-2 text-md font-medium text-white hover:opacity-90"
       >
         Login
       </a>
