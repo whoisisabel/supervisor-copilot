@@ -14,7 +14,7 @@ export default function Navbar() {
 
         <div className="flex items-center gap-6">
           <a href="#features" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Features</a>
-          <a href="/login" className="rounded-full bg-slate-900 px-3 lg:px-6 py-2 text-sm font-bold text-white hover:bg-indigo-600 transition-all active:scale-95 shadow-lg shadow-indigo-900/10">
+          <a href="/login" className="whitespace-nowrap rounded-full bg-slate-900 px-4 lg:px-6 py-2 text-sm font-bold text-white hover:bg-indigo-600 transition-all active:scale-95 shadow-lg shadow-indigo-900/10">
             Sign In
           </a>
         </div>
