@@ -141,11 +141,11 @@ export default function LoginPage() {
                     validate({ email: e.target.value, password });
                   }}
                   className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all outline-none text-sm
-                    ${errors.email ? "border-red-500 bg-red-50" : "border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900"}`}
+                    ${email && errors.email ? "border-red-500 bg-red-50" : "border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900"}`}
                   placeholder="name@company.com"
                 />
               </div>
-              {errors.email && (
+              {email && errors.email && (
                 <p className="mt-1.5 text-xs text-red-500 font-medium">
                   {errors.email}
                 </p>
@@ -177,7 +177,7 @@ export default function LoginPage() {
                     validate({ email, password: e.target.value });
                   }}
                   className={`w-full pl-11 pr-11 py-3 rounded-xl border transition-all outline-none text-sm
-                    ${errors.password ? "border-red-500 bg-red-50" : "border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900"}`}
+                    ${password && errors.password ? "border-red-500 bg-red-50" : "border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900"}`}
                   placeholder="••••••••"
                 />
                 <button
@@ -188,7 +188,7 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              {errors.password && (
+              {password && errors.password && (
                 <p className="mt-1.5 text-xs text-red-500 font-medium">
                   {errors.password}
                 </p>
