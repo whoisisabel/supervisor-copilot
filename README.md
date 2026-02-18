@@ -141,7 +141,7 @@ This allows meaningful AI evaluation without using real mental health data.
 ### Prerequisites
 - Node.js 18+
 - PostgreSQL database
-- OpenAI API key
+- Groq API key
 
 ### Environment Variables
 
@@ -149,7 +149,7 @@ Create a `.env.local` file:
 
 ```env
 DATABASE_URL=your_postgres_url
-OPENAI_API_KEY=your_openai_key
+GROQ_API_KEY=your_qroq_key
 
 ---
 
