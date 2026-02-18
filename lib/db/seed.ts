@@ -6,6 +6,7 @@ async function seed() {
 
   await sql`DELETE FROM session_analysis`;
   await sql`DELETE FROM sessions`;
+  await sql`DELETE FROM reviews`;
 
   for (let i = 0; i < 10; i++) {
     await sql`
