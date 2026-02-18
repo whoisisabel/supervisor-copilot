@@ -18,6 +18,8 @@ export default function Navbar({ session }: NavbarProps) {
   const handleLogout = async () => {
     try {
       await api.post("/api/logout");
+      localStorage.clear();
+      sessionStorage.clear();
       toast.success("Logged out successfully");
       window.location.href = "/login";
     } catch (err) {
@@ -35,6 +37,17 @@ export default function Navbar({ session }: NavbarProps) {
       }
     };
     fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      if (!document.cookie.includes("supervisorId")) {
+        window.location.href = "/login";
+      }
+    };
+
+    window.addEventListener("focus", checkAuth);
+    return () => window.removeEventListener("focus", checkAuth);
   }, []);
 
   return (
