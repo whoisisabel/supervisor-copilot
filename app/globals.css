@@ -61,3 +61,8 @@ h6,
 div {
   cursor: default;
 }
+
+::-webkit-scrollbar {
+  width: 1px;
+  height: 1px;
+}

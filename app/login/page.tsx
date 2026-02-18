@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, Loader2, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import { LoginSchema } from "@/lib/validation/loginSchema";
@@ -18,180 +18,205 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{
-    email?: string;
-    password?: string;
-  }>({});
-
-  const handleForgotPassword = () => {
-    toast.error("Oops! Password reset flow is not part of the assignment");
-  };
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {},
+  );
 
   const validate = (values: { email: string; password: string }) => {
     const result = LoginSchema.safeParse(values);
-
     if (result.success) {
       setErrors({});
       return true;
     }
-
     const fieldErrors: { email?: string; password?: string } = {};
     result.error.issues.forEach((issue) => {
       const field = issue.path[0] as "email" | "password";
       fieldErrors[field] = issue.message;
     });
-
     setErrors(fieldErrors);
     return false;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const parsed = LoginSchema.safeParse({ email, password });
-    if (!parsed.success) {
-      toast.error(parsed.error.issues[0].message);
-      return;
-    }
+    if (!validate({ email, password })) return;
 
     try {
       setLoading(true);
-
-      await api.post("/api/login", parsed.data);
-
-      toast.success("Login successful");
+      await api.post("/api/login", { email, password });
+      toast.success("Welcome back!");
       router.push("/dashboard");
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        toast.error(err.response?.data?.error || "Login failed");
-      } else {
-        toast.error("Something went wrong");
-      }
+      const msg = axios.isAxiosError(err)
+        ? err.response?.data?.error
+        : "Login failed";
+      toast.error(msg || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
-  const isFormValid = email && password && Object.keys(errors).length === 0;
-
   return (
-    <main className="flex h-screen items-center justify-center bg-[var(--brand--neutrals--off-white-background)]">
-      <div className="relative w-[50%] h-full hidden lg:block overflow-hidden">
+    <main className="flex h-screen w-full bg-[#F8F9FB] overflow-hidden">
+      <div className="relative hidden lg:flex lg:w-1/2 items-center justify-center overflow-hidden bg-slate-900">
         <motion.div
-          initial={{ scale: 1 }}
-          animate={{ scale: 1.1 }}
-          transition={{
-            duration: 20,
-            ease: "linear",
-          }}
+          initial={{ scale: 1.2, opacity: 0 }}
+          animate={{ scale: 1, opacity: 0.6 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
           className="absolute inset-0"
         >
           <Image
             src={background}
-            alt="Login background"
+            alt="Login Background"
             fill
-            priority
-            className="object-cover opacity-80"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
+            loading="eager"
           />
         </motion.div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
 
-        <div className="relative z-10">
-          <Image
-            src={logo}
-            alt="Supervisor Copilot Logo"
-            width={100}
-            height={20}
-            className="m-10 cursor-pointer"
-            onClick={() => router.push("/")}
-          />
+        <div className="relative z-10 text-center p-12">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Image
+              src={logo}
+              alt="Logo"
+              width={180}
+              height={40}
+              className="mx-auto mb-8 invert brightness-0 cursor-pointer h-auto hidden lg:block"
+              onClick={() => router.push("/")}
+              priority
+            />
+            <h2 className="text-3xl font-bold text-white mb-4 italic">
+              Transforming oversight into insight.
+            </h2>
+            <p className="text-slate-300 max-w-sm mx-auto">
+              Access the Supervisor Copilot dashboard to manage fellow sessions
+              and AI analysis.
+            </p>
+          </motion.div>
         </div>
       </div>
-      <div className="flex w-full lg:w-[50%] items-center justify-center">
-        <form
-          autoComplete="off"
-          onSubmit={handleSubmit}
-          className="w-full max-w-md py-14 px-5"
+
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-24 bg-white">
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="w-full max-w-md"
         >
-          <Image
-            src={logo}
-            alt="Supervisor Copilot Logo"
-            width={150}
-            height={20}
-            className="m-auto mb-10 block lg:hidden cursor-pointer"
-            onClick={() => router.push("/")}
-          />
-          <div className="text-center lg:text-left mb-6">
-            <h1 className="text-4xl font-semibold text-[var(--brand--neutrals--navy-blue)]">
-              Welcome back
+          <div className="mb-10 text-center lg:text-left">
+            <Image
+              src={logo}
+              alt="Supervisor Copilot Logo"
+              width={120}
+              height={40}
+              priority
+              className="h-auto w-auto mx-auto mb-10 block lg:hidden cursor-pointer"
+              onClick={() => router.push("/")}
+            />
+            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
+              Welcome Back
             </h1>
-            <h2 className="text-md font-medium text-[var(--text--default--black-medium)]">
-              Enter your credentials to access your dashboard
-            </h2>
+            <p className="text-slate-500">
+              Please enter your details to sign in.
+            </p>
           </div>
 
-          <label className="mb-4 block">
-            <span className="text-sm font-medium text-[var(--text--default--black-medium)]">
-              Email
-            </span>
-            <input
-              type="email"
-              placeholder="user@example.com"
-              value={email}
-              onChange={(e) => {
-                const value = e.target.value;
-                setEmail(value);
-                validate({ email: value, password });
-              }}
-              className="mt-1 w-full rounded-lg border border-[var(--brand--neutrals--stroke-grey)] px-4 py-3 focus:ring-2 focus:ring-[var(--brand--color--lime)]"
-            />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                Email Address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    validate({ email: e.target.value, password });
+                  }}
+                  className={`w-full pl-11 pr-4 py-3 rounded-xl border transition-all outline-none text-sm
+                    ${errors.email ? "border-red-500 bg-red-50" : "border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900"}`}
+                  placeholder="name@company.com"
+                />
+              </div>
+              {errors.email && (
+                <p className="mt-1.5 text-xs text-red-500 font-medium">
+                  {errors.email}
+                </p>
+              )}
+            </div>
 
-            {email && errors.email && (
-              <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-            )}
-          </label>
+            <div>
+              <div className="flex justify-between items-end mb-1.5">
+                <label className="text-sm font-semibold text-slate-700">
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() =>
+                    toast.error("Password reset disabled for this demo")
+                  }
+                  className="text-xs font-bold text-indigo-600 hover:text-indigo-500"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    validate({ email, password: e.target.value });
+                  }}
+                  className={`w-full pl-11 pr-11 py-3 rounded-xl border transition-all outline-none text-sm
+                    ${errors.password ? "border-red-500 bg-red-50" : "border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-slate-900/5 focus:border-slate-900"}`}
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="mt-1.5 text-xs text-red-500 font-medium">
+                  {errors.password}
+                </p>
+              )}
+            </div>
 
-          <label className="mb-6 block relative">
-            <span className="text-sm font-medium text-[var(--text--default--black-medium)]">
-              Password
-            </span>
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              placeholder="your password"
-              onChange={(e) => {
-                const value = e.target.value;
-                setPassword(value);
-                validate({ email, password: value });
-              }}
-              className="mt-1 w-full rounded-lg border border-[var(--brand--neutrals--stroke-grey)] px-4 py-3 pr-10 focus:ring-2 focus:ring-[var(--brand--color--lime)]"
-            />
-
-            {password && errors.password && (
-              <p className="mt-1 text-sm text-red-500">{errors.password}</p>
-            )}
             <button
-              type="button"
-              className="absolute right-3 top-10.5 text-[var(--text--default--black-light)]"
-              onClick={() => setShowPassword((prev) => !prev)}
+              disabled={loading || !email || !password}
+              className="group relative w-full bg-slate-900 hover:bg-black text-white py-3.5 rounded-xl font-bold text-sm transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2"
             >
-              {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Sign In"
+              )}
+              {!loading && (
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              )}
             </button>
-          </label>
+          </form>
 
-          <button
-            disabled={loading || !isFormValid}
-            className="w-full rounded-lg bg-[var(--brand--neutrals--navy-blue)] py-3 font-medium text-white hover:opacity-90 disabled:opacity-50"
-          >
-            {loading ? "Signing in..." : "Login"}
-          </button>
-          <button
-            type="button"
-            onClick={() => handleForgotPassword()}
-            className="mt-2 w-full font-semibold text-right text-[var(--brand--neutrals--navy-blue)] hover:text-[var(--text--default--black-light)] cursor-pointer py-3"
-          >
-            Forgot Password
-          </button>
-        </form>
+          <p className="mt-8 text-center text-sm text-slate-500">
+            Don&apos;t have an account?{" "}
+            <span className="text-slate-900 font-bold cursor-pointer hover:underline">
+              Contact Admin
+            </span>
+          </p>
+        </motion.div>
       </div>
     </main>
   );

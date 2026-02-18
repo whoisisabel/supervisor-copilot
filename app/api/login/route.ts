@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     const { email, password } = parsed.data;
 
     const result = await sql`
-      SELECT id, password_hash
+      SELECT id, name, email, password_hash
       FROM supervisors
       WHERE email = ${email}
     `;
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
         INSERT INTO supervisors (email, password_hash, name)
         VALUES (${email}, ${hashedPassword}, ${email.split("@")[0]})
         ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
-        RETURNING id, password_hash
+        RETURNING id, name, email, password_hash
       `;
 
       supervisor = addResult[0];
@@ -42,7 +42,6 @@ export async function POST(req: NextRequest) {
       password,
       supervisor.password_hash,
     );
-
     if (!passwordValid) {
       return NextResponse.json(
         { error: "Invalid email or password" },
@@ -52,12 +51,18 @@ export async function POST(req: NextRequest) {
 
     const response = NextResponse.json({ success: true });
 
-    response.cookies.set("supervisorId", String(supervisor.id), {
+    const cookiePayload = {
+      id: supervisor.id,
+      name: supervisor.name,
+      email: supervisor.email,
+    };
+
+    response.cookies.set("supervisorId", JSON.stringify(cookiePayload), {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24, // 24 hours
       path: "/",
-      maxAge: 60 * 60 * 24, // 1 day
     });
 
     return response;

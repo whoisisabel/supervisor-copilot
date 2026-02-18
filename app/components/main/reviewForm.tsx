@@ -1,0 +1,122 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+
+type Review = {
+  sessionId: number;
+  status: "SAFE" | "RISK" | "FLAGGED";
+  note?: string;
+};
+
+interface ReviewFormProps {
+  sessionId?: string;
+  review?: Review;
+}
+
+export default function ReviewForm({ review, sessionId }: ReviewFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [existingReview, setExistingReview] = useState<Review | undefined>(
+    review,
+  );
+  const router = useRouter();
+
+  useEffect(() => {
+    if (review) {
+      setExistingReview(review);
+    }
+  }, [review]);
+
+  async function handleSubmit(formData: FormData) {
+    setIsSubmitting(true);
+    const finalStatus = formData.get("status") as Review["status"];
+    const note = formData.get("note") as string;
+
+    try {
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: Number(sessionId),
+          finalStatus,
+          note,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to save");
+
+      toast.success(existingReview ? "Review updated" : "Review saved");
+      setExistingReview({
+        sessionId: Number(sessionId),
+        status: finalStatus,
+        note: note,
+      });
+      router.refresh();
+    } catch (err) {
+      toast.error(`Could not save review: ${err}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden my-8">
+      <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
+          Supervisor Review
+        </h3>
+        {existingReview && (
+          <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">
+            EDIT MODE
+          </span>
+        )}
+      </div>
+
+      <form action={handleSubmit} className="p-6 space-y-5">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Status Resolution
+          </label>
+          <select
+            name="status"
+            defaultValue={existingReview?.status || "SAFE"}
+            className="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+          >
+            <option value="SAFE">Mark as Safe</option>
+            <option value="FLAGGED">Flag for Escalation</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Internal Notes
+          </label>
+          <textarea
+            name="note"
+            defaultValue={existingReview?.note || ""}
+            placeholder="Add context for the team..."
+            className="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+            rows={4}
+          />
+        </div>
+
+        <button
+          disabled={isSubmitting}
+          className={`w-full py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2
+            ${
+              isSubmitting
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-slate-900 hover:bg-black text-white active:scale-[0.98] shadow-md hover:shadow-lg"
+            }`}
+        >
+          {isSubmitting
+            ? "Saving..."
+            : existingReview
+              ? "Update Review"
+              : "Complete Review"}
+        </button>
+      </form>
+    </div>
+  );
+}
