@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import Image from "next/image";
 import logo from "../../assets/logo.png";
 import { LogOut, User, LayoutDashboard, ChevronRight } from "lucide-react";
@@ -12,42 +12,35 @@ interface NavbarProps {
   session?: string | null;
 }
 
-export default function Navbar({ session }: NavbarProps) {
+const NavbarComponent = ({ session }: NavbarProps) => {
   const [name, setName] = useState<string>("Supervisor");
 
   const handleLogout = async () => {
     try {
-      await api.post("/api/logout");
       localStorage.clear();
       sessionStorage.clear();
+      await api.post("/api/logout");
       toast.success("Logged out successfully");
-      window.location.href = "/login";
     } catch (err) {
-      console.warn(err);
+      console.warn("Logout error:", err);
+    } finally {
       window.location.href = "/login";
     }
   };
 
   useEffect(() => {
     const fetchUser = async () => {
-      const res = await fetch("/api/current");
-      if (res.ok) {
-        const data = await res.json();
-        setName(data.name);
+      try {
+        const res = await fetch("/api/current");
+        if (res.ok) {
+          const data = await res.json();
+          setName((prev) => (prev !== data.name ? data.name : prev));
+        }
+      } catch (e) {
+        console.error("Failed to fetch user", e);
       }
     };
     fetchUser();
-  }, []);
-
-  useEffect(() => {
-    const checkAuth = () => {
-      if (!document.cookie.includes("supervisorId")) {
-        window.location.href = "/login";
-      }
-    };
-
-    window.addEventListener("focus", checkAuth);
-    return () => window.removeEventListener("focus", checkAuth);
   }, []);
 
   return (
@@ -116,4 +109,7 @@ export default function Navbar({ session }: NavbarProps) {
       </div>
     </nav>
   );
-}
+};
+
+const Navbar = memo(NavbarComponent);
+export default Navbar;
