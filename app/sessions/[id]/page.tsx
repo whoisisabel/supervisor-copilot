@@ -76,7 +76,7 @@ export default function SessionPage() {
         if (reviewRes.data) {
           setReview({
             sessionId: Number(sessionId),
-            status: reviewRes.data.final_status,
+            status: reviewRes.data.status,
             note: reviewRes.data.note,
           });
         } else {
