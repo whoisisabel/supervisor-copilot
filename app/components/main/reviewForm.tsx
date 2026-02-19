@@ -18,6 +18,7 @@ interface ReviewFormProps {
 export default function ReviewForm({ review, sessionId }: ReviewFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [noteValue, setNoteValue] = useState(review?.note || "");
+  const [statusValue, setStatusValue] = useState(review?.status || "SAFE");
   const [existingReview, setExistingReview] = useState<Review | undefined>(
     review,
   );
@@ -27,6 +28,7 @@ export default function ReviewForm({ review, sessionId }: ReviewFormProps) {
     if (review) {
       setExistingReview(review);
       setNoteValue(review.note || "");
+      setStatusValue(review.status || "SAFE");
     }
   }, [review]);
 
@@ -118,7 +120,7 @@ export default function ReviewForm({ review, sessionId }: ReviewFormProps) {
             </label>
             <select
               name="status"
-              defaultValue={existingReview?.status || "SAFE"}
+              defaultValue={statusValue || "SAFE"}
               className="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
             >
               <option value="SAFE">Mark as Safe</option>
