@@ -17,6 +17,7 @@ interface ReviewFormProps {
 
 export default function ReviewForm({ review, sessionId }: ReviewFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [noteValue, setNoteValue] = useState(review?.note || "");
   const [existingReview, setExistingReview] = useState<Review | undefined>(
     review,
   );
@@ -25,8 +26,11 @@ export default function ReviewForm({ review, sessionId }: ReviewFormProps) {
   useEffect(() => {
     if (review) {
       setExistingReview(review);
+      setNoteValue(review.note || "");
     }
   }, [review]);
+
+  const isButtonDisabled = isSubmitting || !noteValue.trim();
 
   async function handleSubmit(formData: FormData) {
     setIsSubmitting(true);
@@ -46,12 +50,14 @@ export default function ReviewForm({ review, sessionId }: ReviewFormProps) {
 
       if (!response.ok) throw new Error("Failed to save");
 
-      toast.success(existingReview ? "Review updated" : "Review saved");
-      setExistingReview({
+      const updatedReview: Review = {
         sessionId: Number(sessionId),
         status: finalStatus,
         note: note,
-      });
+      };
+
+      toast.success(existingReview ? "Review updated" : "Review saved");
+      setExistingReview(updatedReview);
       router.refresh();
     } catch (err) {
       toast.error(`Could not save review: ${err}`);
@@ -67,56 +73,90 @@ export default function ReviewForm({ review, sessionId }: ReviewFormProps) {
           Supervisor Review
         </h3>
         {existingReview && (
-          <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">
-            EDIT MODE
+          <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">
+            SUBMITTED
           </span>
         )}
       </div>
 
-      <form action={handleSubmit} className="p-6 space-y-5">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Status Resolution
-          </label>
-          <select
-            name="status"
-            defaultValue={existingReview?.status || "SAFE"}
-            className="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+      {existingReview && !isSubmitting ? (
+        <div className="p-6 bg-slate-50 space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold text-gray-500 uppercase">
+              Status:
+            </span>
+            <span
+              className={`text-xs font-bold px-2 py-1 rounded ${
+                existingReview.status === "SAFE"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {existingReview.status}
+            </span>
+          </div>
+          <div>
+            <span className="text-xs font-bold text-gray-500 uppercase block mb-1">
+              Notes:
+            </span>
+            <p className="text-sm text-gray-700 bg-white p-3 rounded border border-gray-200 italic">
+              {existingReview.note}
+            </p>
+          </div>
+          <button
+            onClick={() => setExistingReview(undefined)}
+            className="text-xs text-blue-600 hover:underline font-medium"
           >
-            <option value="SAFE">Mark as Safe</option>
-            <option value="FLAGGED">Flag for Escalation</option>
-          </select>
+            Edit Review
+          </button>
         </div>
+      ) : (
+        <form action={handleSubmit} className="p-6 space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status Resolution
+            </label>
+            <select
+              name="status"
+              defaultValue={existingReview?.status || "SAFE"}
+              className="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+            >
+              <option value="SAFE">Mark as Safe</option>
+              <option value="FLAGGED">Flag for Escalation</option>
+            </select>
+          </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Internal Notes
-          </label>
-          <textarea
-            name="note"
-            defaultValue={existingReview?.note || ""}
-            placeholder="Add context for the team..."
-            className="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
-            rows={4}
-          />
-        </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Internal Notes <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              name="note"
+              value={noteValue}
+              onChange={(e) => setNoteValue(e.target.value)}
+              placeholder="Add context for the team (required)..."
+              className="w-full rounded-lg border-gray-300 bg-gray-50 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all outline-none"
+              rows={4}
+            />
+          </div>
 
-        <button
-          disabled={isSubmitting}
-          className={`w-full py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2
-            ${
-              isSubmitting
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-slate-900 hover:bg-black text-white active:scale-[0.98] shadow-md hover:shadow-lg"
-            }`}
-        >
-          {isSubmitting
-            ? "Saving..."
-            : existingReview
-              ? "Update Review"
-              : "Complete Review"}
-        </button>
-      </form>
+          <button
+            disabled={isButtonDisabled}
+            className={`w-full py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2
+              ${
+                isButtonDisabled
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-slate-900 hover:bg-black text-white active:scale-[0.98] shadow-md hover:shadow-lg"
+              }`}
+          >
+            {isSubmitting
+              ? "Saving..."
+              : existingReview
+                ? "Update Review"
+                : "Complete Review"}
+          </button>
+        </form>
+      )}
     </div>
   );
 }
