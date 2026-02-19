@@ -34,7 +34,7 @@ AI insights are **advisory only**. Supervisors always make the final call.
 
 The application is built using **Next.js (App Router)** for both frontend and backend logic.
 
-###Architecture summary:
+### Architecture summary:
 
 - Frontend: React (Next.js)
 - Backend: Next.js Route Handlers (API routes)
